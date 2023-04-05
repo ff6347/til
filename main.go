@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
+	// "database/sql"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,12 +13,13 @@ import (
 	"time"
 
 	"github.com/adrg/xdg"
+  _	"github.com/mattn/go-sqlite3"
 )
 
 func main() {
 
 	//Parse CLI arguments
-	fileName := flag.String("f", "output.csv", "Output file name (alias for --filename)")
+	fileName := flag.String("f", "til.db", "Output database name (alias for --filename)")
 	fileNameLong := flag.String("filename", "", "Output file name")
 	listFlag := flag.Bool("l", false, "List all TILs (alias for --list)")
 	listFlagLong := flag.Bool("list", false, "List all TILs")
@@ -49,6 +50,12 @@ func main() {
 		fmt.Println("Error:", err)
 		return
 	}
+	db, err := setupDatabase(dataPath)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer db.Close()
 
 	if *helpFlag {
 		showHelp()
@@ -61,10 +68,24 @@ func main() {
 	// list all the TILs
 
 	if *listFlag {
-		err = listCsvContents(dataPath)
+		err = listDbContents(db)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
+		return
+	}
+
+  	// Check for any input other than the flags
+	inputArgs := flag.Args()
+	if len(inputArgs) > 0 {
+		entry := strings.Join(inputArgs, " ")
+		data := [][]string{[]string{"", entry}}
+		err = saveToDb(db, data)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Printf("Text saved to %s\n", dataPath)
 		return
 	}
 	reader := bufio.NewReader(os.Stdin)
@@ -101,39 +122,26 @@ func main() {
 				fmt.Println("Error:", err)
 				return
 			}
-			// line = strings.TrimSpace(line)
-			// if line == "" {
-			// 	break
-			// }
 			lines = append(lines, strings.TrimSpace(line))
 
 		}
-		// timestamp := stamp()
 		completeText := strings.Join(lines, "\\n")
 		data = append(data, []string{stamp(), completeText})
-
 	}
-	// for scanner.Scan(){
-	//   line := scanner.Text()
-	//   timestamp := time.Now().Format("2006-01-02 15:04:05")
-	//   data = append(data, []string{timestamp, line})
-	// }
-	// if err := scanner.Err(); err != nil{
-	//   fmt.Println("Error:", err)
-	//   return
-	// }
-
-	err = saveToCsvFile(dataPath, data)
+	//
+	err = saveToDb(db, data)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
 	fmt.Printf("Text saved to %s\n", dataPath)
+
 }
 
 func stamp() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
+
 func showHelp() {
 	helpText := `
 TIL is a simple command-line tool for storing and listing short learnings.
@@ -142,44 +150,32 @@ Usage:
   til [flags] [--] [arguments ...]
 
 Flags:
-  -f, --filename      Set output file name (default: "output.csv")
+  -f, --filename      Set output file name (default: "til.db")
   -l, --list          List all TILs
   -h, --help          Show help
   -p, --print-path    Print path to the default output file
 
-Examples:
-  1. Read input from the user and store it:
-     til -f output.csv
+Notes:
+  If additional input (other than the flags) is provided, it will be treated as an entry and saved to the database.
 
-  2. Read input from pipe:
+Examples:
+  1. Save a text entry directly:
+     til Learned about the Go language today
+
+  2. Read input from the user and store it:
+     til -f output.db
+
+  3. Read input from pipe:
      echo "Piped input" | til
 
-  3. List all the contents from the CSV file:
+  4. List all the contents from the database:
      til -l
 
-  4. Print the path to the default output file:
-     til --print-path  `
+  5. Print the path to the default output file:
+     til --print-path`
 	fmt.Println(helpText)
 }
-func listCsvContents(filePath string) error {
 
-	f, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-	csvReader := csv.NewReader(f)
-	data, err := csvReader.ReadAll()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Timestamp\t\t\tTIL\n")
-	for _, row := range data {
-		fmt.Printf("%s\t%s\n", row[0], row[1])
-	}
-	return nil
-}
 
 func printDefaultFilePath(filename string) {
 	dataPath, err := xdg.DataFile(filepath.Join("til", filename))
@@ -189,24 +185,5 @@ func printDefaultFilePath(filename string) {
 	}
 	fmt.Println("Default output file path:", dataPath)
 }
-func saveToCsvFile(filePath string, content [][]string) error {
-	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
 
-	csvWriter := csv.NewWriter(f)
-	err = csvWriter.WriteAll(content)
-	return err
-}
 
-func saveToFile(filePath, content string) error {
-	f, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	_, err = f.WriteString(content)
-	return err
-}
