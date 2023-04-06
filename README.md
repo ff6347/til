@@ -1,4 +1,4 @@
-# TIL (today I learend)
+# TIL (today I learned…) 
 
-Learning a little go
+…little go
 
