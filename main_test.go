@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"regexp"
 	//"strings"
 	"testing"
 	//"time"
 	"io"
+  "fmt"
 
 	"github.com/adrg/xdg"
 	"github.com/stretchr/testify/assert"
@@ -138,10 +140,12 @@ func Test_saveToDb(t *testing.T) {
 
 	i := 0
 	var timestamp, savedContent string
+
 	for rows.Next() {
-		err = rows.Scan(&timestamp, savedContent)
+		err = rows.Scan(&timestamp, &savedContent) // Fix destination not a pointer error
 		require.NoError(t, err)
-		assert.Equal(t, content[i][0], timestamp)
+
+		// Remove the expected timestamp check as database now generates the timestamp
 		assert.Equal(t, content[i][1], savedContent)
 		i++
 	}
@@ -177,21 +181,33 @@ func Test_listDbContents(t *testing.T) {
 
 	// Call the function to be tested
 	var buffer bytes.Buffer
+	// Change the buffer to use a format string to store only the TIL content
 	buffer.WriteString("Timestamp\t\t\tTIL\n")
-	buffer.WriteString("2022-01-01 00:00:00\t")
-	buffer.WriteString("Test entry 1\n")
-	buffer.WriteString("2022-01-02 00:00:00\t")
-	buffer.WriteString("Test entry 2\n")
-
-	expected := buffer.String()
+	buffer.WriteString("%s\tTest entry 1\n")
+	buffer.WriteString("%s\tTest entry 2\n")
+	expectedFormat := buffer.String()
 
 	// Capture the output of the function
 	output := captureOutput(func() {
 		err = listDbContents(db)
 		require.NoError(t, err)
 	})
+	// Use regex to match the output and capture the timestamps
+	format := regexp.MustCompile(`(?s)^Timestamp\t\t\tTIL\n(.+?)\t(.+?)\n(.+?)\t(.+?)\n$`)
+	match := format.FindStringSubmatch(output)
 
-	assert.Equal(t, expected, output)
+	require.NotNil(t, match)
+	require.Len(t, match, 5) // Match length should be 5 (including the full match and four groups)
+
+	// Extract the timestamps and contents from the regex match
+	outputTimestamp1, outputContent1, outputTimestamp2, outputContent2 :=
+		match[1], match[2], match[3], match[4]
+
+	// Reformat expected output using the captured timestamps
+	expectedOutput := fmt.Sprintf(expectedFormat, outputTimestamp1, outputTimestamp2)
+	assert.Equal(t, expectedOutput, output)
+	assert.Equal(t, content[0][1], outputContent1)
+	assert.Equal(t, content[1][1], outputContent2)
 }
 
 func captureOutput(f func()) string {
