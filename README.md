@@ -1,4 +1,4 @@
 # TIL (today I learned…) 
 
-…little go
+…a little go
 
