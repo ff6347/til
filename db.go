@@ -1,61 +1,41 @@
 package main
 
 import (
-  "fmt"  
-	"database/sql"
-  _	"github.com/mattn/go-sqlite3"
-
+	"encoding/csv"
+	"fmt"
+	"os"
 )
 
-func setupDatabase(dbPath string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dbPath)
+func setupDatabase(filePath string) (*os.File, error) {
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
 	}
-	createTableQuery := `
-CREATE TABLE IF NOT EXISTS entries(
-  id INTEGER PRIMARY KEY,
-  timestamp TEXT NOT NULL,
-  content TEXT NOT NULL
-  )
-  `
-
-	_, err = db.Exec(createTableQuery)
-	if err != nil {
-		db.Close()
-		return nil, err
-	}
-	return db, nil
+	return file, nil
 }
 
-func saveToDb(db *sql.DB, content [][]string) error {
-	insertQuery := "INSERT INTO entries (timestamp, content) VALUES (datetime(\"now\", \"localtime\"), ?)"
+func saveToDb(file *os.File, content [][]string) error {
+	writer := csv.NewWriter(file)
 	for _, entry := range content {
-		_, err := db.Exec(insertQuery, entry[1])
+		err := writer.Write(entry)
 		if err != nil {
 			return err
 		}
 	}
+	writer.Flush()
 	return nil
 }
 
-func listDbContents(db *sql.DB) error {
-	rows, err := db.Query("SELECT timestamp, content FROM entries")
+func listDbContents(file *os.File) error {
+	_, _ = file.Seek(0, 0)
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-
-	fmt.Printf("Timestamp\t\t\tTIL\n")
-	var timestamp, content string
-	for rows.Next() {
-		err := rows.Scan(&timestamp, &content)
-		if err != nil {
-			return err
-		}
-		fmt.Printf("%s\t%s\n", timestamp, content)
+	fmt.Println("Timestamp\t\t\tContent")
+	for _, record := range records {
+		fmt.Println(record[0] + "\t\t" + record[1])
 	}
-	return rows.Err()
+	return nil
 }
-
-
