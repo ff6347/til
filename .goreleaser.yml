@@ -29,7 +29,7 @@ changelog:
       order: 999
 brews:
   - name: til
-    tap:
+    repository:
       owner: ff6347
       name: homebrew-tap
       token: "{{ .Env.BREWTAP_TOKEN }}"
