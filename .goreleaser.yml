@@ -2,7 +2,6 @@ project_name: til
 builds:
   - id: til
     binary: til
-    main: ./main.go
     env:
       - CGO_ENABLED=1
     targets:
