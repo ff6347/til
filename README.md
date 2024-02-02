@@ -6,6 +6,20 @@ til is a small tool to record today I learned (TIL) in your terminal.
 
 download the latest binary from [releases](https://github.com/ff6347/til/releases/) and put it somewhere in your `$PATH`.
 
+Or install with brew:
+
+```bash
+brew tap ff6347/tap
+brew install til
+```
+
+Or build from source:
+
+```bash
+go get github.com/ff6347/til
+```
+
+
 ## Usage
 
 ```bash
@@ -23,4 +37,4 @@ go test
 
 ## Todo
 
-- [ ] Publish to homebrew tap for install
+- [x] Publish to homebrew tap for install
