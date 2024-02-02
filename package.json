@@ -15,8 +15,10 @@
 	},
 	"homepage": "https://github.com/ff6347/til#readme",
 	"release": {
-		"extends": "@technologiestiftung/semantic-release-config",
-		"npmPublish": false,
+		"plugins": [
+			"@semantic-release/commit-analyzer",
+			"@semantic-release/git"
+		],
 		"branches": [
 			{
 				"name": "main"
@@ -42,7 +44,6 @@
 		]
 	},
 	"devDependencies": {
-		"@technologiestiftung/semantic-release-config": "1.2.4",
 		"semantic-release": "23.0.0"
 	}
 }
