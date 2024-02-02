@@ -36,15 +36,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      new-release-published: ${{ steps.semantic-release.outputs.new_release_published }}
-      new-release-version: ${{ steps.semantic-release.outputs.new_release_version }}
     steps:
       - uses: actions/checkout@v4
-      - id: semantic-release
-        uses: cycjimmy/semantic-release-action@v3
+      - uses: actions/setup-node@v4
         with:
-          semantic_version: 18
+          node-version-file: "./.nvmrc"
+      - run: npm ci
+      - id: semantic-release
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -52,7 +51,6 @@ jobs:
     name: GoReleaser
     needs:
       - release
-    if: needs.release.outputs.new-release-published == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-latest
