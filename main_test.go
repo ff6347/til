@@ -106,11 +106,11 @@ func Test_saveToDb(t *testing.T) {
 	fileName := "test_save_til.csv"
 	dbPath, _ := xdg.DataFile(filepath.Join("til", fileName))
 
-	db, err := setupDatabase(dbPath)
+	csvFile, err := setupDatabase(dbPath)
 	require.NoError(t, err)
-	require.NotNil(t, db)
+	require.NotNil(t, csvFile)
 	defer func() {
-		err = db.Close()
+		err = csvFile.Close()
 		require.NoError(t, err)
 		err = os.Remove(dbPath)
 		require.NoError(t, err)
@@ -123,7 +123,7 @@ func Test_saveToDb(t *testing.T) {
 	}
 
 	// Call the function to save the data to the database
-	err = saveToDb(db, content)
+	err = saveToDb(dbPath, content)
 	require.NoError(t, err)
 
 	// Check if the content was saved correctly
@@ -170,7 +170,7 @@ func Test_listDbContents(t *testing.T) {
 		{"2022-01-01 00:00:00", "Test entry 1"},
 		{"2022-01-02 00:00:00", "Test entry 2"},
 	}
-	err = saveToDb(db, content)
+	err = saveToDb(dbPath, content)
 	require.NoError(t, err)
 
 	// Call the function to be tested
@@ -183,7 +183,7 @@ func Test_listDbContents(t *testing.T) {
 
 	// Capture the output of the function
 	output := captureOutput(func() {
-		err = listDbContents(db)
+		err = listDbContents(dbPath)
 		require.NoError(t, err)
 	})
 	// Use regex to match the output and capture the timestamps

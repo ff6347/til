@@ -47,12 +47,12 @@ func main() {
 		fmt.Println("Error:", err)
 		return
 	}
-	db, err := setupDatabase(dataPath)
+	csvFile, err := setupDatabase(dataPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
 	}
-	defer db.Close()
+	defer csvFile.Close()
 
 	if *helpFlag {
 		showHelp()
@@ -65,7 +65,7 @@ func main() {
 	// list all the TILs
 
 	if *listFlag {
-		err = listDbContents(db)
+		err = listDbContents(dataPath)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
@@ -76,7 +76,7 @@ func main() {
 	if len(inputArgs) > 0 {
 		entry := strings.Join(inputArgs, " ")
 		data := [][]string{[]string{"", entry}}
-		err = saveToDb(db, data)
+		err = saveToDb(dataPath, data)
 		if err != nil {
 			fmt.Println("Error:", err)
 			return
@@ -119,7 +119,7 @@ func main() {
 		data = append(data, []string{stamp(), completeText})
 	}
 	//
-	err = saveToDb(db, data)
+	err = saveToDb(dataPath, data)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return

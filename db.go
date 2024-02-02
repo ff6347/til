@@ -7,35 +7,51 @@ import (
 )
 
 func setupDatabase(filePath string) (*os.File, error) {
-	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE, 0755)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		return nil, err
 	}
 	return file, nil
 }
 
-func saveToDb(file *os.File, content [][]string) error {
+func saveToDb(filePath string, content [][]string) error {
+	// Open the file in append mode, create it if it doesn't exist.
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
 	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
 	for _, entry := range content {
-		err := writer.Write(entry)
-		if err != nil {
+		if err := writer.Write(entry); err != nil {
 			return err
 		}
 	}
-	writer.Flush()
+
 	return nil
 }
 
-func listDbContents(file *os.File) error {
-	_, _ = file.Seek(0, 0)
+func listDbContents(filePath string) error {
+	// Open the file in read-only mode.
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
 	reader := csv.NewReader(file)
 	records, err := reader.ReadAll()
 	if err != nil {
 		return err
 	}
+
 	fmt.Println("Timestamp\t\t\tContent")
 	for _, record := range records {
 		fmt.Println(record[0] + "\t\t" + record[1])
 	}
+
 	return nil
 }
