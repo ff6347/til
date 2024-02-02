@@ -1,29 +1,39 @@
 {
-  "name": "@ff6347/til",
-  "version": "0.1.0",
-  "description": "Learning a little go",
-  "scripts": {},
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ff6347/til.git"
-  },
-  "keywords": [],
-  "author": "ff6347 <hash@ff6347.email>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ff6347/til/issues"
-  },
-  "homepage": "https://github.com/ff6347/til#readme",
-  "release": {
-    "branches": [
-      "main"
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/git"
-    ]
-  },
-  "dependencies": {
-    "@githubnext/github-copilot-cli": "0.1.36"
-  }
+	"name": "@ff6347/til",
+	"version": "0.1.0",
+	"description": "Learning a little go",
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ff6347/til.git"
+	},
+	"keywords": [],
+	"author": "ff6347 <hash@ff6347.email>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/ff6347/til/issues"
+	},
+	"homepage": "https://github.com/ff6347/til#readme",
+	"release": {
+		"branches": ["main"],
+		"plugins": ["@semantic-release/commit-analyzer", "@semantic-release/git"]
+	},
+	"dependencies": {
+		"@githubnext/github-copilot-cli": "0.1.36"
+	},
+	"prettier": {
+		"tabWidth": 2,
+		"semi": true,
+		"singleQuote": false,
+		"useTabs": true,
+		"printWidth": 80,
+		"overrides": [
+			{
+				"files": ["*.yml", "*.yaml"],
+				"options": {
+					"useTabs": false
+				}
+			}
+		]
+	}
 }
