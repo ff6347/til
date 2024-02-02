@@ -23,8 +23,6 @@ jobs:
           go-version-file: "./go.mod"
 
       - name: Build
-        env:
-          CGO_ENABLED: 1
         run: go build -v ./...
 
       - name: Test

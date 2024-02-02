@@ -5,13 +5,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/adrg/xdg"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/adrg/xdg"
 )
 
 func main() {
