@@ -17,7 +17,10 @@
 	"release": {
 		"plugins": [
 			"@semantic-release/commit-analyzer",
-			"@semantic-release/git"
+			"@semantic-release/git",
+			"@semantic-release/changelog",
+			"@semantic-release/github",
+			"@semantic-release/release-notes-generator"
 		],
 		"branches": [
 			{
@@ -33,10 +36,7 @@
 		"printWidth": 80,
 		"overrides": [
 			{
-				"files": [
-					"*.yml",
-					"*.yaml"
-				],
+				"files": ["*.yml", "*.yaml"],
 				"options": {
 					"useTabs": false
 				}
@@ -44,8 +44,11 @@
 		]
 	},
 	"devDependencies": {
+		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "11.1.0",
 		"@semantic-release/git": "10.0.1",
+		"@semantic-release/github": "9.2.6",
+		"@semantic-release/release-notes-generator": "12.1.0",
 		"semantic-release": "23.0.0"
 	}
 }
