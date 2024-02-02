@@ -34,9 +34,8 @@ brews:
     commit_author:
       name: Fabian Morón Zirfas
       email: hash@ff6347.email
-      url_template: "https://github.com/ff6347/til/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-      homepage: https://supabase.com
-      description: til (today I learned) CLI
-      license: MIT
-      install: |
-        bin.install "til"
+    homepage: https://github.com/ff6347/til
+    description: til (today I learned) CLI
+    license: MIT
+    install: |
+      bin.install "til"
