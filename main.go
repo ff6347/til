@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	// "database/sql"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,13 +12,12 @@ import (
 	"time"
 
 	"github.com/adrg/xdg"
-  _	"github.com/mattn/go-sqlite3"
 )
 
 func main() {
 
 	//Parse CLI arguments
-	fileName := flag.String("f", "til.db", "Output database name (alias for --filename)")
+	fileName := flag.String("f", "til.csv", "Output database name (alias for --filename)")
 	fileNameLong := flag.String("filename", "", "Output file name")
 	listFlag := flag.Bool("l", false, "List all TILs (alias for --list)")
 	listFlagLong := flag.Bool("list", false, "List all TILs")
@@ -75,7 +73,6 @@ func main() {
 		return
 	}
 
-  	// Check for any input other than the flags
 	inputArgs := flag.Args()
 	if len(inputArgs) > 0 {
 		entry := strings.Join(inputArgs, " ")
@@ -91,7 +88,6 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	var data [][]string
 
-	// scanner := bufio.NewScanner(reader)
 	info, _ := os.Stdin.Stat()
 	if (info.Mode() & os.ModeCharDevice) != os.ModeCharDevice {
 		for {
@@ -102,11 +98,6 @@ func main() {
 				fmt.Println("Error:", err)
 				return
 			}
-			// line = strings.TrimSpace(line)
-			// if line == "" {
-			// 	break
-			// }
-			// timestamp := stamp()
 			data = append(data, []string{stamp(), strings.TrimSpace(line)})
 		}
 
@@ -150,7 +141,7 @@ Usage:
   til [flags] [--] [arguments ...]
 
 Flags:
-  -f, --filename      Set output file name (default: "til.db")
+  -f, --filename      Set output file name (default: "til.csv")
   -l, --list          List all TILs
   -h, --help          Show help
   -p, --print-path    Print path to the default output file
@@ -163,7 +154,7 @@ Examples:
      til Learned about the Go language today
 
   2. Read input from the user and store it:
-     til -f output.db
+     til -f output.csv
 
   3. Read input from pipe:
      echo "Piped input" | til
@@ -176,7 +167,6 @@ Examples:
 	fmt.Println(helpText)
 }
 
-
 func printDefaultFilePath(filename string) {
 	dataPath, err := xdg.DataFile(filepath.Join("til", filename))
 	if err != nil {
@@ -185,5 +175,3 @@ func printDefaultFilePath(filename string) {
 	}
 	fmt.Println("Default output file path:", dataPath)
 }
-
-
