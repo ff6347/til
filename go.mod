@@ -4,7 +4,7 @@ go 1.21.6
 
 require (
 	github.com/adrg/xdg v0.4.0
-	github.com/mattn/go-sqlite3 v1.14.21
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/stretchr/testify v1.8.2
 )
 
